@@ -15,5 +15,5 @@ pub struct DotEnvyConfig {
     pub server: Server,
     pub database: Database,
     pub secret: String,
-    
+    pub refresh_secret: String,
 }

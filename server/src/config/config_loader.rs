@@ -30,13 +30,28 @@ pub fn load() -> Result<DotEnvyConfig> {
         .expect("SECRET is valid")
         .parse()?;
 
+    let refresh_secret = std::env::var("JWT_REFRESH_SECRET")
+        .expect("REFRESH_SECRET is valid")
+        .parse()?;
+
     let config = DotEnvyConfig {
         server,
         database,
         secret,
+        refresh_secret,
     };
 
     Ok(config)
+}
+
+pub fn get_user_secret_env() -> Result<DotEnvyConfig> {
+    // load() // old
+    let dot_env = match load() {
+        Ok(dot_env) => dot_env,
+        Err(e) => return Err(e),
+    };
+
+    Ok(dot_env)
 }
 
 pub fn get_stage() -> Stage {

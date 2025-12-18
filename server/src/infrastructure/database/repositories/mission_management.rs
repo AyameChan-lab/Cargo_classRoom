@@ -1,7 +1,7 @@
 use anyhow::Result;
 use async_trait::async_trait;
+use diesel::RunQueryDsl;
 use diesel::prelude::*;
-use diesel::{RunQueryDsl};
 use std::sync::Arc;
 
 use crate::domain::entities::missions::{AddMissionEntity, EditMissionEntity};

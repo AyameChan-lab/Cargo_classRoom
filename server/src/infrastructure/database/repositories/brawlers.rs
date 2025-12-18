@@ -23,7 +23,7 @@ impl BrawlerPostgres {
 impl BrawlerRepository for BrawlerPostgres {
     async fn register(&self, register_brawler_entity: RegisterBrawlerEntity) -> Result<i32> {
         let mut connection = self
-            .db_pool    
+            .db_pool
             .get()
             .map_err(|e| anyhow::Error::msg(e.to_string()))?;
 
@@ -37,7 +37,7 @@ impl BrawlerRepository for BrawlerPostgres {
 
     async fn find_by_username(&self, username: String) -> Result<BrawlerEntity> {
         let mut connection = self
-            .db_pool            
+            .db_pool
             .get()
             .map_err(|e| anyhow::Error::msg(e.to_string()))?;
 
