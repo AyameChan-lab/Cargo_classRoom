@@ -36,12 +36,14 @@ where
         let mission = self
             .mission_viewing_repository
             .view_detail(mission_id)
-            .await?;
+            .await
+            .map_err(|_| anyhow::anyhow!("Mission not found"))?;
 
         let crew_count = self
             .mission_viewing_repository
             .crew_counting(mission_id)
-            .await?;
+            .await
+            .map_err(|_| anyhow::anyhow!("Failed to count crew"))?;
 
         let mission_status_condition = mission.status == MissionStatuses::Open.to_string()
             || mission.status == MissionStatuses::Failed.to_string();
@@ -68,7 +70,8 @@ where
         let mission = self
             .mission_viewing_repository
             .view_detail(mission_id)
-            .await?;
+            .await
+            .map_err(|_| anyhow::anyhow!("Mission not found"))?;
 
         let leaving_condition = mission.status == MissionStatuses::Open.to_string()
             || mission.status == MissionStatuses::Failed.to_string();

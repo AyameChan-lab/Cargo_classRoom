@@ -1,35 +1,71 @@
-### Login User
-# @name login
-POST http://127.0.0.1:8000/api/auth/login
+# ### Login User
+# # @name login
+# POST http://127.0.0.1:8000/api/auth/login
+# Content-Type: application/json
+
+# {
+#     "username": "auth_tester",
+#     "password": "password123"
+# }
+
+# ### Add Mission
+# # @name add_mission
+# POST http://127.0.0.1:8000/api/missions
+# Content-Type: application/json
+
+# {
+#     "name": "Save the Cat",
+#     "description": "A cat is stuck on a tree in the park."
+# }
+
+# ### Edit Mission
+# # @name edit_mission
+# @mission_id = {{add_mission.response.body}}
+# PATCH http://127.0.0.1:8000/api/missions/{{mission_id}}
+# Content-Type: application/json
+
+# {
+#     "name": "Save the Cat (Urgent)",
+#     "description": "It's starting to rain!",
+#     "status": "In Progress"
+# }
+
+# ### Remove Mission
+# # @name remove_mission
+# DELETE http://127.0.0.1:8000/api/missions/{{mission_id}}
+
+# @env = dev
+### create new mission
+# @prompt mission_name Mission Name
+# @prompt description Mission Description
+POST {{base_url}}/missions-management
 Content-Type: application/json
+Authorization: Bearer {{menta_token}}
+
 
 {
-    "username": "auth_tester",
-    "password": "password123"
+    "name": "{{mission_name}}",
+    "description":"{{description}}"
 }
 
-### Add Mission
-# @name add_mission
-POST http://127.0.0.1:8000/api/missions
+
+### update mission
+# @prompt mission_id Mission ID
+# @prompt mission_name Mission Name
+# @prompt description Mission Description
+PATCH {{base_url}}/missions-management/{{mission_id}}
 Content-Type: application/json
+Authorization: Bearer {{menta_token}}
+
 
 {
-    "name": "Save the Cat",
-    "description": "A cat is stuck on a tree in the park."
+    "name": "{{mission_name}}",
+    "description": "{{description}}"
 }
 
-### Edit Mission
-# @name edit_mission
-@mission_id = {{add_mission.response.body}}
-PATCH http://127.0.0.1:8000/api/missions/{{mission_id}}
+
+### remove mission
+# @prompt mission_id Mission ID
+DELETE {{base_url}}/missions-management/{{mission_id}}
 Content-Type: application/json
-
-{
-    "name": "Save the Cat (Urgent)",
-    "description": "It's starting to rain!",
-    "status": "In Progress"
-}
-
-### Remove Mission
-# @name remove_mission
-DELETE http://127.0.0.1:8000/api/missions/{{mission_id}}
+Authorization: Bearer {{menta_token}}

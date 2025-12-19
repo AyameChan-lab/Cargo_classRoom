@@ -37,7 +37,7 @@ impl AddMissionModel {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EditMissionModel {
-    pub name: String,
+    pub name: Option<String>,
     pub description: Option<String>,
     pub status: Option<String>,
 }
@@ -46,7 +46,7 @@ impl EditMissionModel {
     // here have something slide 3-16
     pub fn to_entity(&self, chief_id: i32) -> EditMissionEntity {
         EditMissionEntity {
-            name: Some(self.name.clone()),
+            name: self.name.clone(),
             description: self.description.clone(),
             status: self.status.clone(),
             chief_id,
