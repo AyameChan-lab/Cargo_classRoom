@@ -1,0 +1,35 @@
+### Login User
+# @name login
+POST http://127.0.0.1:8000/api/auth/login
+Content-Type: application/json
+
+{
+    "username": "auth_tester",
+    "password": "password123"
+}
+
+### Add Mission
+# @name add_mission
+POST http://127.0.0.1:8000/api/missions
+Content-Type: application/json
+
+{
+    "name": "Save the Cat",
+    "description": "A cat is stuck on a tree in the park."
+}
+
+### Edit Mission
+# @name edit_mission
+@mission_id = {{add_mission.response.body}}
+PATCH http://127.0.0.1:8000/api/missions/{{mission_id}}
+Content-Type: application/json
+
+{
+    "name": "Save the Cat (Urgent)",
+    "description": "It's starting to rain!",
+    "status": "In Progress"
+}
+
+### Remove Mission
+# @name remove_mission
+DELETE http://127.0.0.1:8000/api/missions/{{mission_id}}

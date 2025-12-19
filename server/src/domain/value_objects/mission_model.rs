@@ -18,6 +18,7 @@ pub struct MissionModel {
     pub updated_at: NaiveDateTime,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AddMissionModel {
     pub name: String,
     pub description: Option<String>,
@@ -34,6 +35,7 @@ impl AddMissionModel {
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EditMissionModel {
     pub name: String,
     pub description: Option<String>,
