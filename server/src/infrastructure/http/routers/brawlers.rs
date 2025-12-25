@@ -25,12 +25,15 @@ pub fn routes(db_pool: Arc<PgPoolSquad>) -> Router {
         .with_state(brawler_usecase)
 }
 
-async fn register(
-    State(brawler_usecase): State<Arc<BrawlersUseCase<BrawlerPostgres>>>,
+pub async fn register<T>(
+    State(brawlers_use_case): State<Arc<BrawlersUseCase<T>>>,
     Json(register_brawler_model): Json<RegisterBrawlerModel>,
-) -> impl IntoResponse {
-    match brawler_usecase.register(register_brawler_model).await {
-        Ok(_) => (StatusCode::CREATED, "Brawler registered successfully").into_response(),
+) -> impl IntoResponse
+where
+    T: crate::domain::repositories::brawlers::BrawlerRepository + Send + Sync,
+{
+    match brawlers_use_case.register(register_brawler_model).await {
+        Ok(passport) => (StatusCode::CREATED, Json(passport)).into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
     }
 }

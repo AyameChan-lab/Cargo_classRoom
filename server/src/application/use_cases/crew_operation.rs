@@ -39,6 +39,9 @@ where
             .await
             .map_err(|_| anyhow::anyhow!("Mission not found"))?;
 
+        if mission.chief_id == brawler_id {
+            return Err(anyhow::anyhow!("The Chief can't join the mission"))
+        }
         let crew_count = self
             .mission_viewing_repository
             .crew_counting(mission_id)
@@ -88,3 +91,4 @@ where
         Ok(())
     }
 }
+

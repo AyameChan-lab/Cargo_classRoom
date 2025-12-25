@@ -8,13 +8,29 @@ use axum::{
 };
 
 pub async fn authorization(mut req: Request<Body>, next: Next) -> Result<Response, StatusCode> {
-    let cookie_str = req
+    let token = req
         .headers()
-        .get(header::COOKIE)
-        .and_then(|cookie_header| cookie_header.to_str().ok())
-        .ok_or(StatusCode::UNAUTHORIZED)?;
+        .get(header::AUTHORIZATION)
+        .and_then(|auth_header| auth_header.to_str().ok())
+        .and_then(|auth_value| {
+            if auth_value.starts_with("Bearer ") {
+                Some(auth_value[7..].to_string())
+            } else {
+                None
+            }
+        });
 
-    let token = get_cookie_value(cookie_str, "token").ok_or(StatusCode::UNAUTHORIZED)?;
+    let token = if let Some(t) = token {
+        t
+    } else {
+        let cookie_str = req
+            .headers()
+            .get(header::COOKIE)
+            .and_then(|cookie_header| cookie_header.to_str().ok())
+            .ok_or(StatusCode::UNAUTHORIZED)?;
+
+        get_cookie_value(cookie_str, "token").ok_or(StatusCode::UNAUTHORIZED)?
+    };
 
     let secret_env = get_user_secret_env().map_err(|_| StatusCode::UNAUTHORIZED)?;
 

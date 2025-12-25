@@ -1,39 +1,3 @@
-# ### Login User
-# # @name login
-# POST http://127.0.0.1:8000/api/auth/login
-# Content-Type: application/json
-
-# {
-#     "username": "auth_tester",
-#     "password": "password123"
-# }
-
-# ### Add Mission
-# # @name add_mission
-# POST http://127.0.0.1:8000/api/missions
-# Content-Type: application/json
-
-# {
-#     "name": "Save the Cat",
-#     "description": "A cat is stuck on a tree in the park."
-# }
-
-# ### Edit Mission
-# # @name edit_mission
-# @mission_id = {{add_mission.response.body}}
-# PATCH http://127.0.0.1:8000/api/missions/{{mission_id}}
-# Content-Type: application/json
-
-# {
-#     "name": "Save the Cat (Urgent)",
-#     "description": "It's starting to rain!",
-#     "status": "In Progress"
-# }
-
-# ### Remove Mission
-# # @name remove_mission
-# DELETE http://127.0.0.1:8000/api/missions/{{mission_id}}
-
 # @env = dev
 ### create new mission
 # @prompt mission_name Mission Name
@@ -69,3 +33,51 @@ Authorization: Bearer {{menta_token}}
 DELETE {{base_url}}/missions-management/{{mission_id}}
 Content-Type: application/json
 Authorization: Bearer {{menta_token}}
+
+
+//! Mission Operation
+// ทำสอบ api ใน server/api tests/mission_test.http
+### set mission to in-progress
+# @prompt mission_id Mission ID to Set In-Progress
+PATCH  {{base_url}}/mission/in-progress/{{mission_id}}
+Content-Type: application/json
+Authorization: Bearer {{menta_token}}
+
+
+### set mission to completed
+# @prompt mission_id Mission ID to Set Completed
+PATCH  {{base_url}}/mission/to-completed/{{mission_id}}
+Content-Type: application/json
+Authorization: Bearer {{menta_token}}
+
+
+### set mission to failed
+# @prompt mission_id Mission ID to Set Failed
+PATCH  {{base_url}}/mission/to-failed/{{mission_id}}
+Content-Type: application/json
+Authorization: Bearer {{menta_token}}
+
+
+# Mission Viewing
+### get mission by id
+# @prompt mission_id Mission ID
+GET  {{base_url}}/view/{{mission_id}}
+Content-Type: application/json
+Authorization: Bearer {{menta_token}}
+
+
+
+### get missions with name
+# @prompt name Name to Search
+GET  {{base_url}}/view/gets?name={{name}}
+Content-Type: application/json
+Authorization: Bearer {{menta_token}}
+
+
+### get missions with name and status
+# @prompt name Name to Search
+# @prompt status Status to Search
+GET  {{base_url}}/view/gets?name={{name}}&status={{status}}
+Content-Type: application/json
+Authorization: Bearer {{menta_token}}
+

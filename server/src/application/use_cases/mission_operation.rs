@@ -46,10 +46,7 @@ where
 
         let is_status_open_or_fail = mission.status == MissionStatuses::Open.to_string()
             || mission.status == MissionStatuses::Failed.to_string();
-        let update_condition = is_status_open_or_fail
-            && crew_count > 0
-            && crew_count < MAX_CREW_PER_MISSION
-            && mission.chief_id == chief_id;
+        let update_condition = is_status_open_or_fail && mission.chief_id == chief_id;
         if !update_condition {
             return Err(anyhow::anyhow!("Invalid condition to change stages!"));
         }
