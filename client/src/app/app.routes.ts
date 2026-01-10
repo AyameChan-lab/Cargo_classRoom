@@ -9,7 +9,7 @@ export const routes: Routes = [
     {path:'',component:Home},
     {path:'login',component:Login},
     {path:'profile',component:Profile},
-    // {path:'server-error',component:ServerError},    
-    // {path:'not-found',component:NotFound},
+    {path:'server-error',component:ServerError},    
+    {path:'not-found',component:NotFound},
     {path:'**',component:NotFound}
 ];
