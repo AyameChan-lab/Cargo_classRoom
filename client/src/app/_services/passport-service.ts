@@ -46,6 +46,9 @@ export class PassportService {
       const api_url = this._base_url + '/auth/login'
       await this.fetchPassport(api_url, login)
     } catch (error) {
+      if (error instanceof HttpErrorResponse) {
+        return error.error;
+      }
       return `${error}`;
     }
     return null;
@@ -67,9 +70,14 @@ export class PassportService {
   }
 
   private async fetchPassport(api_url: string, model: LoginModel | RegisterModel) {
-    const response = await this._http.post<Passport>(api_url, model)
+    const response = this._http.post<Passport>(api_url, model)
     const passport = await firstValueFrom(response);
     this.data.set(passport);
     this.savePassportToLocalStorage();
+  }
+
+  logout() {
+    this.data.set(undefined);
+    localStorage.removeItem(this._key);
   }
 }

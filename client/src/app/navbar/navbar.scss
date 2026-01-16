@@ -1,6 +1,23 @@
-.navbar-cm {
+mat-toolbar {
+    display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px;
     border-bottom: 1px solid #ccc;
+    
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 8px;
+        cursor: pointer;
+        vertical-align: middle;
+    }
+
+    /* Ensure the div container for buttons aligns items correctly */
+    > div {
+        display: flex;
+        align-items: center;
+    }
 }

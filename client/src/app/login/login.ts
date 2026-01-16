@@ -3,12 +3,12 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { passwordMatchValidator, PasswordValidator } from '../_helpers/password-validator';
 import { MatFormField } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatCard, MatCardActions, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
+import { MatCard, MatCardContent } from '@angular/material/card';
 import { Router } from '@angular/router';
 import { PassportService } from '../_services/passport-service';
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, ReactiveFormsModule, MatFormField, MatInputModule, MatCardActions, MatCardContent, MatCardSubtitle, MatCardTitle, MatCardHeader, MatCard],
+  imports: [FormsModule, ReactiveFormsModule, MatFormField, MatInputModule, MatCardContent, MatCard],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -29,19 +29,29 @@ export class Login {
     cf_password: signal<string | null>(''),
   }
 
+  protected serverError = signal<string | null>(null);
+
   private _router = inject(Router)
   private _passport = inject(PassportService)
 
   constructor() {
+    if (this._passport.data()) {
+      this._router.navigate(['/']);
+    }
+    if (this._router.url.includes('register')) {
+      this.mode = 'register';
+    }
     this.form = new FormGroup({ username: new FormControl(null, [Validators.required, Validators.minLength(this.usernameMinLength), Validators.maxLength(this.usernameMaxLength)]), password: new FormControl(null, [Validators.required, PasswordValidator(this.passwordMinLength, this.passwordMaxLength)]) })
+    this.updateForm();
   }
   toggleMode() {
     this.mode = this.mode == 'login' ? 'register' : 'login';
+    this.serverError.set(null);
     this.updateForm();
   }
   updateForm() {
     if (this.mode === 'login') {
-      this.form.removeControl('cf_name')
+      this.form.removeControl('cf_password')
       this.form.removeValidators(passwordMatchValidator('password', 'cf_password'))
       this.form.removeControl('display_name')
     } else {
@@ -49,9 +59,11 @@ export class Login {
       this.form.addValidators(passwordMatchValidator('password', 'cf_password'))
       this.form.addControl('display_name', new FormControl(null, [Validators.required, Validators.minLength(this.displayNameMinLength)]))
     }
+    this.form.updateValueAndValidity();
   }
 
   updateErrorMsg(ctrlName: string): void | null {
+    this.serverError.set(null); // Clear server error on input
     const ctrl = this.form.controls[ctrlName]
     if (!ctrl) return null;
     console.log('pass', ctrlName)
@@ -86,13 +98,15 @@ export class Login {
     console.log('errmsg :', this.errorMsg.password())
   }
   async onSubmit() {
+    this.serverError.set(null);
     if (this.mode === 'login') {
       const errMsg = await this._passport.get(this.form.value);
       if (!errMsg) this._router.navigate(['/'])
+      else this.serverError.set(errMsg);
     } else {
       const errMsg = await this._passport.register(this.form.value);
       if (!errMsg) this._router.navigate(['/'])
-      else alert(errMsg)
+      else this.serverError.set(errMsg);
     }
   }
 }

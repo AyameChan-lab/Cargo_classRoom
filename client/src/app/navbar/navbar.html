@@ -1,9 +1,16 @@
 <mat-toolbar class="navbar-cm">
-  <span routerLink="/" style="cursor:pointer">My Application</span>
+  <span routerLink="/" style="cursor: pointer">My Application</span>
   <div>
-      <button mat-button routerLink="/">Home</button>
-      <button mat-button routerLink="/login">Login</button>
-      <button mat-button routerLink="/profile">Profile</button>
+    <button mat-button routerLink="/">Home</button>
+    @if (!display_name()) {
+    <button mat-button routerLink="/login">Login</button>
+    } @else {
+    <img [src]="avatar_url()" class="user-avatar" [matMenuTriggerFor]="menu" />
+    <button mat-button [matMenuTriggerFor]="menu">{{ display_name() }}</button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item routerLink="/profile">Profile</button>
+      <button mat-menu-item (click)="logout()">Logout</button>
+    </mat-menu>
+    }
   </div>
-
 </mat-toolbar>
