@@ -1,3 +1,31 @@
-<div style="padding: 20px; background-color: lightblue;">
-  <h1>PROFILE WORKS!</h1>
+<div class="profile-container">
+  @if (passportService.data(); as user) {
+    <mat-card class="profile-card">
+      <div class="avatar-section">
+        <div class="avatar-wrapper">
+          @if (user.avatar_url) {
+            <img [src]="user.avatar_url" alt="Avatar" class="avatar-image" />
+          } @else {
+            <div class="avatar-placeholder">
+              <span>{{ user.username?.charAt(0)?.toUpperCase() }}</span>
+            </div>
+          }
+          <button mat-mini-fab color="primary" class="edit-avatar-btn" (click)="openAvatarDialog()">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h2>{{ user.display_name || user.username }}</h2>
+        <p class="username">@{{ user.username }}</p>
+      </div>
+
+      <mat-card-actions>
+        <button mat-button color="warn" (click)="logout()">Logout</button>
+      </mat-card-actions>
+    </mat-card>
+  } @else {
+    <p>Loading profile...</p>
+  }
 </div>

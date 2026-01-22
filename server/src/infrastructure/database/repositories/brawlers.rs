@@ -51,6 +51,20 @@ impl BrawlerRepository for BrawlerPostgres {
         Ok(result)
     }
 
+    async fn find_by_id(&self, id: i32) -> Result<BrawlerEntity> {
+        let mut connection = self
+            .db_pool
+            .get()
+            .map_err(|e| anyhow::Error::msg(e.to_string()))?;
+
+        let result = brawlers::table
+            .filter(brawlers::id.eq(id))
+            .select(BrawlerEntity::as_select())
+            .first::<BrawlerEntity>(&mut connection)?;
+
+        Ok(result)
+    }
+
     async fn upload_base64img(
         &self,
         user_id: i32,

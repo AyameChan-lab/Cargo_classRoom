@@ -66,17 +66,20 @@ export class PassportService {
 
   private async fetchPassport(api_url: string, model: LoginModel | RegisterModel) {
     const response = await firstValueFrom(this._http.post<Passport>(api_url, model));
-    const passportWithInfo: Passport = {
-      ...response,
-      username: model.username,
-      display_name: 'display_name' in model ? (model as RegisterModel).display_name : undefined,
-    };
-    this.data.set(passportWithInfo);
+    this.data.set(response);
     this.savePassportToLocalStorage();
   }
 
   logout() {
     this.data.set(undefined);
     localStorage.removeItem(this._key);
+  }
+  updateAvatar(url: string) {
+    const current = this.data();
+    if (current) {
+      const updated = { ...current, avatar_url: url };
+      this.data.set(updated);
+      this.savePassportToLocalStorage();
+    }
   }
 }

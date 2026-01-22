@@ -2,10 +2,15 @@
   <p>home works!</p>
 
   <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap">
-    <button (click)="onError(502)">Test 502 Error (Page)</button>
-    <button (click)="onError(404)">Test 404 Error</button>
-    <button (click)="onError(400)">Test 400 Error</button>
-    <button (click)="onError(401)">Test 401 Error</button>
+    <button (click)="onError(500)">500</button>
+    <button (click)="onError(502)">502</button>
+    <button (click)="onError(400)">400</button>
+    <button (click)="onError(401)">401</button>
+    <button (click)="onError(404)">404</button>
+    <button (click)="onError(403)">403</button>
+    <button (click)="onError(503)">503</button>
+    <button (click)="onError(504)">504</button>
+    <button (click)="onError(418)">418</button>
   </div>
 
   <!-- test 500,501,502,507,508,400,401,404,406 -->

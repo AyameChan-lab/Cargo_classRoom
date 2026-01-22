@@ -36,7 +36,12 @@ where
             return Err(anyhow::anyhow!("Invalid password!"));
         }
 
-        let passport = Passport::new(brawler.id)?;
+        let passport = Passport::new(
+            brawler.id,
+            brawler.username,
+            brawler.display_name,
+            brawler.avatar_url,
+        )?;
 
         Ok(passport)
     }
@@ -44,19 +49,23 @@ where
     pub async fn refresh_token(&self, refresh_token: String) -> Result<Passport> {
         let secret_env = get_user_secret_env()?;
 
-        // Verify the provided token (assuming it's a valid token, arguably access or legacy refresh)
-        // With the specific image changes, refresh token flow might be deprecated or simplified.
-        // But to keep this method compiling:
+        // Verify the provided token
         let claims = infrastructure::jwt::verify_token(
-            secret_env.refresh_secret.clone(), // This might fail if refresh_secret env is gone or not used in generation
+            secret_env.secret.to_string(), // Using secret instead of refresh_secret as noted in original code comments
             refresh_token.clone(),
         )?;
 
-        // However, since Passport::new uses JWT_USER_SECRET to sign, verifying with REFRESH_SECRET matches old logic.
-        // If we strictly follow images, only Passport::new exists.
-        // I will use Passport::new using the ID from the valid token.
         let brawler_id = claims.sub.parse::<i32>()?;
-        let passport = Passport::new(brawler_id)?;
+
+        // Fetch user details to repopulate passport
+        let brawler = self.brawler_repository.find_by_id(brawler_id).await?;
+
+        let passport = Passport::new(
+            brawler.id,
+            brawler.username,
+            brawler.display_name,
+            brawler.avatar_url,
+        )?;
 
         Ok(passport)
     }

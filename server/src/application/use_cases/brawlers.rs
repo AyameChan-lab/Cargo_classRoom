@@ -1,5 +1,6 @@
 use crate::domain::repositories::brawlers::BrawlerRepository;
 use crate::domain::value_objects::brawler_model::RegisterBrawlerModel;
+use crate::domain::value_objects::uploaded_image::{UploadBase64Img, UploadedImg};
 use crate::infrastructure::argon2::hash;
 use crate::infrastructure::jwt::jwt_model::Passport;
 use anyhow::Result;
@@ -25,10 +26,31 @@ where
 
         let register_entity = register_model.to_entity();
 
-        let brawler_id = self.brawler_repository.register(register_entity).await?;
+        let brawler_id = self
+            .brawler_repository
+            .register(register_entity.clone())
+            .await?;
 
-        let passport = Passport::new(brawler_id)?;
+        let passport = Passport::new(
+            brawler_id,
+            register_entity.username,
+            register_entity.display_name,
+            None,
+        )?;
 
         Ok(passport)
+    }
+
+    pub async fn upload_avatar(
+        &self,
+        user_id: i32,
+        base64_image: UploadBase64Img,
+    ) -> Result<UploadedImg> {
+        let uploaded_img = self
+            .brawler_repository
+            .upload_base64img(user_id, base64_image)
+            .await?;
+
+        Ok(uploaded_img)
     }
 }
