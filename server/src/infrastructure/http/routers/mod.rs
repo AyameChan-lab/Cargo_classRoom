@@ -1,5 +1,6 @@
 pub mod authentication;
 pub mod brawlers;
+pub mod buggy_routes;
 pub mod crew_operation;
 pub mod default_router;
 pub mod mission_managment;

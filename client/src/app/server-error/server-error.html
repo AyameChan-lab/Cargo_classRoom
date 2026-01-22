@@ -1,1 +1,28 @@
-<p>server-error works!</p>
+<div class="server-error-container">
+  <mat-card appearance="outlined" class="error-card">
+    <mat-card-header>
+      <mat-card-title class="error-title">
+        @if (statusCode) {
+          <span>{{ statusCode }}</span>
+        }
+        Server Error
+      </mat-card-title>
+      <mat-card-subtitle>Internal Server Error</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content class="error-content">
+      <p class="summary">We're sorry, but something went wrong.</p>
+
+      @if (error) {
+        <div class="error-details">
+          <strong>Details:</strong>
+          <pre class="code-block">{{ error | json }}</pre>
+        </div>
+      }
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button mat-raised-button color="primary" routerLink="/">Return to Home</button>
+    </mat-card-actions>
+  </mat-card>
+</div>

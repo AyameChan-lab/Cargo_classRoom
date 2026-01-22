@@ -33,52 +33,40 @@ export class ErrorService {
           this._snackbar.open('Authorization Required', 'ok', this.snackBarConfig);
           break;
         case 500:
-          this._router.navigate(['/server-error']);
-          break;
-        case 501:
-          this._router.navigate(['/server-error']);
-          break;
-        case 502:
-          this._router.navigate(['/server-error']);
-          break;
-        case 503:
-          this._router.navigate(['/server-error']);
-          break;
-        case 504:
-          this._router.navigate(['/server-error']);
-          break;
-        case 505:
-          this._router.navigate(['/server-error']);
-          break;
-        case 506:
-          this._router.navigate(['/server-error']);
-          break;
-        case 507:
-          this._router.navigate(['/server-error']);
-          break;
-        case 508:
-          this._router.navigate(['/server-error']);
-          break;
-        case 509:
-          this._router.navigate(['/server-error']);
-          break;
-        case 510:
-          this._router.navigate(['/server-error']);
-          break;
-        case 511:
-          const navExtra: NavigationExtras = {
-            state: {
-              error: error.error,
-            },
-          };
-          this._router.navigate(['/server-error'], navExtra);
+          let msg500 =
+            error.error && typeof error.error === 'string' ? error.error : 'Internal Server Error';
+
+          // Handle specific business logic errors with snackbar
+          if (
+            msg500.includes('duplicate key value violates unique constraint') ||
+            msg500.includes('unique_username')
+          ) {
+            if (msg500.includes('duplicate key value violates unique constraint')) {
+              msg500 = 'Username unavailable. Please choose another username.';
+            } else if (msg500.includes('unique_username')) {
+              msg500 = 'Username is already taken.';
+            }
+            this._snackbar.open(msg500, 'ok', this.snackBarConfig);
+          } else {
+            // Generic 500 -> Server Error Page
+            const navExtra: NavigationExtras = {
+              state: {
+                error: error.error,
+                status: error.status,
+              },
+            };
+            this._router.navigate(['/server-error'], navExtra);
+          }
           break;
         default:
-          this._snackbar.open(
-            'some thing went wrong >_<))) pls try againg later ><',
-            'ok',
-            this.snackBarConfig
-          );
+          // All other errors (including 501-511) -> Server Error Page
+          const navExtraDefault: NavigationExtras = {
+            state: {
+              error: error.error,
+              status: error.status,
+            },
+          };
+          this._router.navigate(['/server-error'], navExtraDefault);
           break;
       }
     }
