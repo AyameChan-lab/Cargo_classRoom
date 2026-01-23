@@ -2,8 +2,9 @@ use std::sync::Arc;
 
 use axum::{
     Json, Router,
-    extract::{Path, Query, State},
+    extract::{Extension, Path, Query, State},
     http::StatusCode,
+    middleware,
     response::IntoResponse,
     routing::get,
 };
@@ -14,8 +15,12 @@ use crate::{
         repositories::mission_viewing::MissionViewingRepository,
         value_objects::mission_filter::MissionFilter,
     },
-    infrastructure::database::{
-        postgresql_connection::PgPoolSquad, repositories::mission_viewing::MisssionViewingPostgres,
+    infrastructure::{
+        database::{
+            postgresql_connection::PgPoolSquad,
+            repositories::mission_viewing::MisssionViewingPostgres,
+        },
+        http::middleware::auth::authorization,
     },
 };
 
@@ -34,7 +39,7 @@ where
 
 pub async fn gets<T>(
     State(mission_viewing_use_case): State<Arc<MissionViewingUseCase<T>>>,
-    filter: Query<MissionFilter>, // Automatically deserializes query params into MissionFilter
+    Query(filter): Query<MissionFilter>,
 ) -> impl IntoResponse
 where
     T: MissionViewingRepository + Send + Sync,
@@ -52,5 +57,6 @@ pub fn routes(db_pool: Arc<PgPoolSquad>) -> Router {
     Router::new()
         .route("/{mission_id}", get(view_detail))
         .route("/gets", get(gets))
+        .route_layer(middleware::from_fn(authorization))
         .with_state(Arc::new(use_case))
 }

@@ -8,6 +8,7 @@ import { MissionService } from '../_services/mission-service';
 import { Mission } from '../_models/mission';
 import { NewMission } from '../_dialog/new-mission/new-mission';
 import { AddMission } from '../_models/add-mission';
+import { PassportService } from '../_services/passport-service';
 
 @Component({
   selector: 'app-mission-manager',
@@ -19,6 +20,7 @@ import { AddMission } from '../_models/add-mission';
 export class MissionManager {
   private _missionService = inject(MissionService);
   private _dialog = inject(MatDialog);
+  private _passportService = inject(PassportService);
   private _missionsSubject = new BehaviorSubject<Mission[]>([]);
   readonly myMissions$ = this._missionsSubject.asObservable();
 
@@ -44,6 +46,7 @@ export class MissionManager {
         description: addMission.description,
         status: 'Open',
         chief_id: 0,
+        chief_display_name: this._passportService.data()?.display_name || 'Me',
         crew_count: 0,
         created_at: now,
         updated_at: now,

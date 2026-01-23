@@ -25,6 +25,40 @@
         <button mat-button color="warn" (click)="logout()">Logout</button>
       </mat-card-actions>
     </mat-card>
+
+    <div class="missions-section">
+      <h3>Joined Missions</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Chief</th>
+              <th>Status</th>
+              <th>Joined At</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (mission of joinedMissions; track mission.id) {
+              <tr>
+                <td>{{ mission.name }}</td>
+                <td>{{ mission.description || '-' }}</td>
+                <td>{{ mission.chief_display_name }}</td>
+                <td>
+                  <span class="status-badge" [class]="mission.status">{{ mission.status }}</span>
+                </td>
+                <td>{{ mission.created_at | date: 'short' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="no-data">You haven't joined any missions yet.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
   } @else {
     <p>Loading profile...</p>
   }

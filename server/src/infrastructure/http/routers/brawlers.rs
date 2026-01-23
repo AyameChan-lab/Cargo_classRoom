@@ -6,7 +6,7 @@ use axum::{
     http::StatusCode,
     middleware,
     response::IntoResponse,
-    routing::post,
+    routing::{get, post},
 };
 
 use crate::{
@@ -28,7 +28,35 @@ pub fn routes(db_pool: Arc<PgPoolSquad>) -> Router {
             "/avatar",
             post(upload_avatar).layer(middleware::from_fn(authorization)),
         )
+        .route(
+            "/missions",
+            get(get_my_missions).layer(middleware::from_fn(authorization)),
+        )
+        .route(
+            "/missions/joined",
+            get(get_joined_missions).layer(middleware::from_fn(authorization)),
+        )
         .with_state(brawler_usecase)
+}
+
+pub async fn get_my_missions(
+    State(brawlers_use_case): State<Arc<BrawlersUseCase<BrawlerPostgres>>>,
+    Extension(user_id): Extension<i32>,
+) -> impl IntoResponse {
+    match brawlers_use_case.get_missions(user_id).await {
+        Ok(missions) => (StatusCode::OK, Json(missions)).into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+    }
+}
+
+pub async fn get_joined_missions(
+    State(brawlers_use_case): State<Arc<BrawlersUseCase<BrawlerPostgres>>>,
+    Extension(user_id): Extension<i32>,
+) -> impl IntoResponse {
+    match brawlers_use_case.get_joined_missions(user_id).await {
+        Ok(missions) => (StatusCode::OK, Json(missions)).into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+    }
 }
 
 pub async fn upload_avatar(

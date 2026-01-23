@@ -32,73 +32,46 @@
     </div>
   </div>
 
-  <div class="missions-grid">
-    @for (mission of missions; track mission.id) {
-      <div class="mission-card">
-        <div class="card-header">
-          <h3>{{ mission.name }}</h3>
-
-          @if (mission.status) {
-            <span class="status-badge" [ngClass]="mission.status">
-              <mat-icon>
-                @switch (mission.status) {
-                  @case ('Open') {
-                    radio_button_unchecked
-                  }
-                  @case ('InProgress') {
-                    hourglass_top
-                  }
-                  @case ('Completed') {
-                    check_circle
-                  }
-                  @case ('Failed') {
-                    error_outline
-                  }
-                  @default {
-                    help_outline
-                  }
-                }
-              </mat-icon>
-              {{ mission.status }}
-            </span>
+  <div class="missions-table-container">
+    <table class="missions-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Chief</th>
+          <th>Number of Crew</th>
+          <th>Status</th>
+          <th>Created at</th>
+          <th>Updated at</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (mission of missions; track mission.id) {
+          <tr>
+            <td class="name-cell">{{ mission.name }}</td>
+            <td class="desc-cell">{{ mission.description }}</td>
+            <td>{{ mission.chief_display_name }}</td>
+            <td>{{ mission.crew_count }}</td>
+            <td>
+              <span class="status-cell">{{ mission.status }}</span>
+            </td>
+            <td>{{ mission.created_at | date: 'MM/dd/yy, h:mm a' }}</td>
+            <td>{{ mission.updated_at | date: 'MM/dd/yy, h:mm a' }}</td>
+            <td class="actions-cell">
+              @if (isSignin() && mission.status === 'Open') {
+                <span class="action-link" (click)="joinMission(mission.id, $event)">Join</span>
+              }
+            </td>
+          </tr>
+        } @empty {
+          @if (!loading) {
+            <tr>
+              <td colspan="7" class="no-data">No missions found matching your criteria.</td>
+            </tr>
           }
-        </div>
-
-        <div class="card-body">
-          <p>{{ mission.description || 'No description provided.' }}</p>
-        </div>
-
-        <div class="separator"></div>
-
-        <div class="card-footer">
-          <div class="members">
-            <mat-icon>group</mat-icon>
-            <span>{{ mission.crew_count }}</span>
-          </div>
-          <div class="actions">
-            <button class="view-btn"><mat-icon>visibility</mat-icon> View</button>
-
-            @if (isSignin()) {
-              @if (mission.status === 'Open') {
-                <button class="action-btn accept" (click)="joinMission(mission.id, $event)">
-                  <mat-icon>group_add</mat-icon> Join Mission
-                </button>
-              }
-              @if (mission.status === 'InProgress') {
-                <button class="action-btn complete" (click)="completeMission(mission.id, $event)">
-                  <mat-icon>check</mat-icon> Done
-                </button>
-              }
-            }
-          </div>
-        </div>
-      </div>
-    } @empty {
-      @if (!loading) {
-        <div class="no-data">
-          <span>No missions found matching your criteria.</span>
-        </div>
-      }
-    }
+        }
+      </tbody>
+    </table>
   </div>
 </div>

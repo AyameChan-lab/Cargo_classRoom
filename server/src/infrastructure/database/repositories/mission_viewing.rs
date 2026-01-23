@@ -4,9 +4,10 @@ use diesel::prelude::*;
 use diesel::{RunQueryDsl, SelectableHelper};
 use std::sync::Arc;
 
-use crate::domain::entities::missions::MissionEntity;
 use crate::domain::repositories::mission_viewing::MissionViewingRepository;
-use crate::domain::value_objects::mission_filter::MissionFilter;
+use crate::domain::value_objects::{
+    brawler_model::BrawlerModel, mission_filter::MissionFilter, mission_model::MissionModel,
+};
 use crate::infrastructure::database::postgresql_connection::PgPoolSquad;
 use crate::infrastructure::database::schema::{crew_memberships, missions};
 
@@ -22,45 +23,91 @@ impl MisssionViewingPostgres {
 
 #[async_trait]
 impl MissionViewingRepository for MisssionViewingPostgres {
-    async fn view_detail(&self, mission_id: i32) -> Result<MissionEntity> {
+    async fn view_detail(&self, mission_id: i32) -> Result<MissionModel> {
         let mut conn = self
             .db_pool
             .get()
             .map_err(|e| anyhow::Error::msg(e.to_string()))?;
 
-        let result = missions::table
-            .filter(missions::id.eq(mission_id))
-            .filter(missions::deleted_at.is_null())
-            .select(MissionEntity::as_select())
-            .first::<MissionEntity>(&mut conn)?;
+        let sql = r#"
+            SELECT
+                m.id,
+                m.name,
+                m.description,
+                m.status,
+                m.chief_id,
+                b.display_name AS chief_display_name,
+                (SELECT COUNT(*) FROM crew_memberships cm WHERE cm.mission_id = m.id) AS crew_count,
+                m.created_at,
+                m.updated_at
+            FROM missions m
+            JOIN brawlers b ON m.chief_id = b.id
+            WHERE m.id = $1 AND m.deleted_at IS NULL
+        "#;
+
+        let result = diesel::sql_query(sql)
+            .bind::<diesel::sql_types::Int4, _>(mission_id)
+            .get_result::<MissionModel>(&mut conn)?;
 
         Ok(result)
     }
 
-    async fn get(&self, filter: &MissionFilter) -> Result<Vec<MissionEntity>> {
+    async fn gets(&self, filter: &MissionFilter) -> Result<Vec<MissionModel>> {
         let mut conn = self
             .db_pool
             .get()
             .map_err(|e| anyhow::Error::msg(e.to_string()))?;
 
-        let mut query = missions::table
-            .filter(missions::deleted_at.is_null())
-            .into_boxed();
+        let sql = r#"
+            SELECT
+                m.id,
+                m.name,
+                m.description,
+                m.status,
+                m.chief_id,
+                b.display_name AS chief_display_name,
+                (SELECT COUNT(*) FROM crew_memberships cm WHERE cm.mission_id = m.id) AS crew_count,
+                m.created_at,
+                m.updated_at
+            FROM missions m
+            JOIN brawlers b ON m.chief_id = b.id
+            WHERE m.deleted_at IS NULL
+            AND ($1 IS NULL OR m.status = $1)
+            AND ($2 IS NULL OR m.name ILIKE $2)
+        "#;
 
-        if let Some(status) = &filter.status {
-            query = query.filter(missions::status.eq(status.to_string()));
-        }
+        let status_bind = filter.status.as_ref().map(|s| s.to_string());
+        let name_bind = filter.name.as_ref().map(|n| format!("%{}%", n));
 
-        if let Some(name) = &filter.name {
-            query = query.filter(missions::name.ilike(format!("%{}%", name)));
-        }
+        let rows = diesel::sql_query(sql)
+            .bind::<diesel::sql_types::Nullable<diesel::sql_types::Varchar>, _>(status_bind)
+            .bind::<diesel::sql_types::Nullable<diesel::sql_types::Varchar>, _>(name_bind)
+            .load::<MissionModel>(&mut conn)?;
 
-        let results = query
-            .select(MissionEntity::as_select())
-            .order_by(missions::created_at.desc())
-            .load::<MissionEntity>(&mut conn)?;
+        Ok(rows)
+    }
 
-        Ok(results)
+    async fn get_mission_crew(&self, mission_id: i32) -> Result<Vec<BrawlerModel>> {
+        let mut conn = self
+            .db_pool
+            .get()
+            .map_err(|e| anyhow::Error::msg(e.to_string()))?;
+
+        let sql = r#"
+            SELECT
+                b.id,
+                b.username,
+                b.display_name
+            FROM crew_memberships cm
+            JOIN brawlers b ON cm.brawler_id = b.id
+            WHERE cm.mission_id = $1
+        "#;
+
+        let rows = diesel::sql_query(sql)
+            .bind::<diesel::sql_types::Int4, _>(mission_id)
+            .load::<BrawlerModel>(&mut conn)?;
+
+        Ok(rows)
     }
 
     async fn crew_counting(&self, mission_id: i32) -> Result<u32> {

@@ -19,10 +19,15 @@ export const routes: Routes = [
     runGuardsAndResolvers: 'always',
   },
   {
-    path: 'chief',
+    path: 'mission-manager',
     component: MissionManager,
     runGuardsAndResolvers: 'always',
     canActivate: [authGuard],
+  },
+  {
+    path: 'chief',
+    redirectTo: 'mission-manager',
+    pathMatch: 'full',
   },
   { path: 'missions', component: Missions },
   { path: 'server-error', component: ServerError },

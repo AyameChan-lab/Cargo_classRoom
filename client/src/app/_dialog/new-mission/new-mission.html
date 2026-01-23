@@ -23,7 +23,5 @@
 
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancel</button>
-  <button (click)="onSubmit()" mat-stroked-button type="submit" [disabled]="!addMission.name">
-    Create
-  </button>
+  <button (click)="onSubmit()" mat-stroked-button [disabled]="!addMission.name">Create</button>
 </mat-dialog-actions>

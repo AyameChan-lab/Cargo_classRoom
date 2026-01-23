@@ -4,7 +4,9 @@
     <button mat-button routerLink="/">Home</button>
     <button mat-button routerLink="/missions">Missions</button>
     @if (display_name()) {
-      <button mat-button routerLink="/chief" routerLinkActive="active">My Missions</button>
+      <button mat-button routerLink="/mission-manager" routerLinkActive="active">
+        My Missions
+      </button>
     }
     @if (!display_name()) {
       <button mat-button routerLink="/login">Login</button>

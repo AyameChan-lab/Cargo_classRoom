@@ -1,5 +1,6 @@
 use crate::domain::repositories::brawlers::BrawlerRepository;
 use crate::domain::value_objects::brawler_model::RegisterBrawlerModel;
+use crate::domain::value_objects::mission_model::MissionModel;
 use crate::domain::value_objects::uploaded_image::{UploadBase64Img, UploadedImg};
 use crate::infrastructure::argon2::hash;
 use crate::infrastructure::jwt::jwt_model::Passport;
@@ -52,5 +53,18 @@ where
             .await?;
 
         Ok(uploaded_img)
+    }
+
+    pub async fn get_missions(&self, brawler_id: i32) -> Result<Vec<MissionModel>> {
+        let missions = self.brawler_repository.get_missions(brawler_id).await?;
+        Ok(missions)
+    }
+
+    pub async fn get_joined_missions(&self, brawler_id: i32) -> Result<Vec<MissionModel>> {
+        let missions = self
+            .brawler_repository
+            .get_joined_missions(brawler_id)
+            .await?;
+        Ok(missions)
     }
 }

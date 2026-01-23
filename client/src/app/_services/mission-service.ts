@@ -15,14 +15,21 @@ export class MissionService {
   filter: MissionFilter = {};
 
   async add(mission: AddMission): Promise<number> {
-    const url = this._api_url + '/missions-management/';
+    const url = this._api_url + '/missions-management';
     const observable = this._http.post<{ mission_id: number }>(url, mission);
     const resp = await firstValueFrom(observable);
     return resp.mission_id;
   }
 
   async getMyMissions(): Promise<Mission[]> {
-    const url = this._api_url + '/brawler/missions';
+    const url = this._api_url + '/brawlers/missions';
+    const observable = this._http.get<Mission[]>(url);
+    const missions = await firstValueFrom(observable);
+    return missions;
+  }
+
+  async getJoinedMissions(): Promise<Mission[]> {
+    const url = this._api_url + '/brawlers/missions/joined';
     const observable = this._http.get<Mission[]>(url);
     const missions = await firstValueFrom(observable);
     return missions;

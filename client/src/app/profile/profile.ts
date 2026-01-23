@@ -7,6 +7,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { AvatarDialog } from './avatar-dialog/avatar-dialog';
+import { MissionService } from '../_services/mission-service';
+import { Mission } from '../_models/mission';
 
 @Component({
   selector: 'app-profile',
@@ -19,6 +21,21 @@ export class Profile {
   passportService = inject(PassportService);
   private _dialog = inject(MatDialog);
   private _router = inject(Router);
+  private _missionService = inject(MissionService);
+
+  joinedMissions: Mission[] = [];
+
+  constructor() {
+    this.loadJoinedMissions();
+  }
+
+  async loadJoinedMissions() {
+    try {
+      this.joinedMissions = await this._missionService.getJoinedMissions();
+    } catch (error) {
+      console.error('Failed to load joined missions', error);
+    }
+  }
 
   openAvatarDialog() {
     const dialogRef = this._dialog.open(AvatarDialog, {

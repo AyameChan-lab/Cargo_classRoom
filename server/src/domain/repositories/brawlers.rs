@@ -4,7 +4,10 @@ use mockall::automock;
 
 use crate::domain::{
     entities::brawlers::{BrawlerEntity, RegisterBrawlerEntity},
-    value_objects::uploaded_image::{UploadBase64Img, UploadedImg},
+    value_objects::{
+        mission_model::MissionModel,
+        uploaded_image::{UploadBase64Img, UploadedImg},
+    },
 };
 // 20
 #[async_trait]
@@ -18,4 +21,7 @@ pub trait BrawlerRepository {
         user_id: i32,
         base64_image: UploadBase64Img,
     ) -> Result<UploadedImg>;
+    async fn crew_counting(&self, mission_id: i32) -> Result<u32>;
+    async fn get_missions(&self, brawler_id: i32) -> Result<Vec<MissionModel>>;
+    async fn get_joined_missions(&self, brawler_id: i32) -> Result<Vec<MissionModel>>;
 }
