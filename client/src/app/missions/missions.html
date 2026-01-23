@@ -1,0 +1,11 @@
+<input type="text" [(ngModel)]="filter.name" placeholder="Mission Name" />
+<select [(ngModel)]="filter.status">
+  <option value="">-- Select Status --</option>
+  <option value="Open">Open</option>
+  <option value="InProgress">In Progress</option>
+  <option value="Completed">Completed</option>
+  <option value="Failed">Failed</option>
+</select>
+<button (click)="onSubmit()">Go</button>
+
+{{ missions | json }}
