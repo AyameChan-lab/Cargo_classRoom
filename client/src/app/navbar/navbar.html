@@ -11,7 +11,13 @@
     @if (!display_name()) {
       <button mat-button routerLink="/login">Login</button>
     } @else {
-      <img [src]="avatar_url()" class="user-avatar" [matMenuTriggerFor]="menu" />
+      @if (avatar_url() && avatar_url() !== '/assets/default.avatar.jpg') {
+        <img [src]="avatar_url()" class="user-avatar" [matMenuTriggerFor]="menu" />
+      } @else {
+        <div class="avatar-placeholder" [matMenuTriggerFor]="menu">
+          <span>{{ display_name()?.charAt(0)?.toUpperCase() }}</span>
+        </div>
+      }
       <button mat-button [matMenuTriggerFor]="menu">{{ display_name() }}</button>
       <mat-menu #menu="matMenu">
         <button mat-menu-item routerLink="/profile">Profile</button>
