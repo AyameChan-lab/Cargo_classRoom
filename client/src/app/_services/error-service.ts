@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { NavigationExtras, Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { MatSnackBarConfig } from '@angular/material/snack-bar';
@@ -18,6 +18,18 @@ export class ErrorService {
 
   handleError(error: any): Observable<never> {
     if (error) {
+      if (
+        error.status >= 400 &&
+        error.status < 500 &&
+        error.url &&
+        (error.url.includes('login') || error.url.includes('register'))
+      ) {
+        const msg =
+          error.error && typeof error.error === 'string' ? error.error : 'Authentication failed';
+        this._snackbar.open(msg, 'ok', this.snackBarConfig);
+        return throwError(() => error);
+      }
+
       switch (error.status) {
         case 400:
           const msg =

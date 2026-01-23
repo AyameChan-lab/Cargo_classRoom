@@ -35,6 +35,7 @@ export class Login {
   };
 
   protected serverError = signal<string | null>(null);
+  protected isBusy = signal<boolean>(false);
 
   private _router = inject(Router);
   private _passport = inject(PassportService);
@@ -133,15 +134,21 @@ export class Login {
     console.log('errmsg :', this.errorMsg.password());
   }
   async onSubmit() {
+    if (this.isBusy()) return;
+    this.isBusy.set(true);
     this.serverError.set(null);
-    if (this.mode === 'login') {
-      const errMsg = await this._passport.get(this.form.value);
-      if (!errMsg) this._router.navigate(['/']);
-      else this.serverError.set(errMsg);
-    } else {
-      const errMsg = await this._passport.register(this.form.value);
-      if (!errMsg) this._router.navigate(['/']);
-      else this.serverError.set(errMsg);
+    try {
+      if (this.mode === 'login') {
+        const errMsg = await this._passport.get(this.form.value);
+        if (!errMsg) this._router.navigate(['/']);
+        else this.serverError.set(errMsg);
+      } else {
+        const errMsg = await this._passport.register(this.form.value);
+        if (!errMsg) this._router.navigate(['/']);
+        else this.serverError.set(errMsg);
+      }
+    } finally {
+      this.isBusy.set(false);
     }
   }
 }
