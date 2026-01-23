@@ -147,11 +147,11 @@ impl BrawlerRepository for BrawlerPostgres {
 
         let sql = r#"
             SELECT
-                m.id,
-                m.name,
-                m.description,
-                m.status,
-                m.chief_id,
+                m.id AS id,
+                m.name AS name,
+                m.description AS description,
+                m.status AS status,
+                m.chief_id AS chief_id,
                 b.display_name AS chief_display_name,
                 (SELECT COUNT(*) FROM crew_memberships cm WHERE cm.mission_id = m.id) AS crew_count,
                 m.created_at AS created_at,

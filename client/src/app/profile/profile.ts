@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PassportService } from '../_services/passport-service';
@@ -23,6 +23,8 @@ export class Profile {
   private _router = inject(Router);
   private _missionService = inject(MissionService);
 
+  private _cdr = inject(ChangeDetectorRef);
+
   joinedMissions: Mission[] = [];
 
   constructor() {
@@ -32,6 +34,8 @@ export class Profile {
   async loadJoinedMissions() {
     try {
       this.joinedMissions = await this._missionService.getJoinedMissions();
+      console.log('Joined Missions:', this.joinedMissions);
+      this._cdr.detectChanges(); // Fix NG0100
     } catch (error) {
       console.error('Failed to load joined missions', error);
     }
