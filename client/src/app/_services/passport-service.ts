@@ -13,6 +13,7 @@ export class PassportService {
   private _http = inject(HttpClient);
 
   data = signal<undefined | Passport>(undefined);
+  isSignin = signal<boolean>(false);
 
   private loadPassportFromLocalStorage() {
     const jsonString = localStorage.getItem(this._key);
@@ -20,6 +21,7 @@ export class PassportService {
     try {
       const passport = JSON.parse(jsonString) as Passport;
       this.data.set(passport);
+      this.isSignin.set(true);
     } catch (error) {
       return `${error}`;
     }
@@ -68,10 +70,12 @@ export class PassportService {
     const response = await firstValueFrom(this._http.post<Passport>(api_url, model));
     this.data.set(response);
     this.savePassportToLocalStorage();
+    this.isSignin.set(true);
   }
 
   logout() {
     this.data.set(undefined);
+    this.isSignin.set(false);
     localStorage.removeItem(this._key);
   }
   updateAvatar(url: string) {

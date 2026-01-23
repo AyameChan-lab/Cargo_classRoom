@@ -1,11 +1,104 @@
-<input type="text" [(ngModel)]="filter.name" placeholder="Mission Name" />
-<select [(ngModel)]="filter.status">
-  <option value="">-- Select Status --</option>
-  <option value="Open">Open</option>
-  <option value="InProgress">In Progress</option>
-  <option value="Completed">Completed</option>
-  <option value="Failed">Failed</option>
-</select>
-<button (click)="onSubmit()">Go</button>
+<div class="missions-page">
+  <div class="header">
+    <h1>Missions</h1>
+    <p>Search and browse available missions</p>
+  </div>
 
-{{ missions | json }}
+  <div class="search-container">
+    <div class="search-title">
+      <mat-icon>search</mat-icon>
+      <span>Search Missions</span>
+    </div>
+    <div class="search-inputs">
+      <div class="input-group">
+        <input
+          type="text"
+          [(ngModel)]="filter.name"
+          placeholder="Mission Name"
+          (keyup.enter)="search()"
+        />
+      </div>
+      <div class="input-group">
+        <div class="status-label">Status</div>
+        <select [(ngModel)]="filter.status" (change)="search()">
+          <option value="">All Statuses</option>
+          <option value="Open">Open</option>
+          <option value="InProgress">In Progress</option>
+          <option value="Completed">Completed</option>
+          <option value="Failed">Failed</option>
+        </select>
+      </div>
+      <button class="search-btn" (click)="search()"><mat-icon>search</mat-icon> Search</button>
+    </div>
+  </div>
+
+  <div class="missions-grid">
+    @for (mission of missions; track mission.id) {
+      <div class="mission-card">
+        <div class="card-header">
+          <h3>{{ mission.name }}</h3>
+
+          @if (mission.status) {
+            <span class="status-badge" [ngClass]="mission.status">
+              <mat-icon>
+                @switch (mission.status) {
+                  @case ('Open') {
+                    radio_button_unchecked
+                  }
+                  @case ('InProgress') {
+                    hourglass_top
+                  }
+                  @case ('Completed') {
+                    check_circle
+                  }
+                  @case ('Failed') {
+                    error_outline
+                  }
+                  @default {
+                    help_outline
+                  }
+                }
+              </mat-icon>
+              {{ mission.status }}
+            </span>
+          }
+        </div>
+
+        <div class="card-body">
+          <p>{{ mission.description || 'No description provided.' }}</p>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="card-footer">
+          <div class="members">
+            <mat-icon>group</mat-icon>
+            <span>{{ mission.crew_count }}</span>
+          </div>
+          <div class="actions">
+            <button class="view-btn"><mat-icon>visibility</mat-icon> View</button>
+
+            @if (isSignin()) {
+              @if (mission.status === 'Open') {
+                <button class="action-btn accept" (click)="joinMission(mission.id, $event)">
+                  <mat-icon>group_add</mat-icon> Join Mission
+                </button>
+              }
+              @if (mission.status === 'InProgress') {
+                <button class="action-btn complete" (click)="completeMission(mission.id, $event)">
+                  <mat-icon>check</mat-icon> Done
+                </button>
+              }
+            }
+          </div>
+        </div>
+      </div>
+    } @empty {
+      @if (!loading) {
+        <div class="no-data">
+          <span>No missions found matching your criteria.</span>
+        </div>
+      }
+    }
+  </div>
+</div>

@@ -4,14 +4,29 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Mission } from '../_models/mission';
 import { MissionFilter } from '../_models/mission-filter';
+import { AddMission } from '../_models/add-mission';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MissionService {
-  private _api_url = environment.baseUrl + '/api/v1';
+  private _api_url = environment.baseUrl + '/api';
   private _http = inject(HttpClient);
   filter: MissionFilter = {};
+
+  async add(mission: AddMission): Promise<number> {
+    const url = this._api_url + '/missions-management/';
+    const observable = this._http.post<{ mission_id: number }>(url, mission);
+    const resp = await firstValueFrom(observable);
+    return resp.mission_id;
+  }
+
+  async getMyMissions(): Promise<Mission[]> {
+    const url = this._api_url + '/brawler/missions';
+    const observable = this._http.get<Mission[]>(url);
+    const missions = await firstValueFrom(observable);
+    return missions;
+  }
 
   async gets(filter: MissionFilter): Promise<Mission[]> {
     const queryString = this.toQueryString(filter);
@@ -19,6 +34,26 @@ export class MissionService {
     const observable = this._http.get<Mission[]>(url);
     const missions = await firstValueFrom(observable);
     return missions;
+  }
+
+  async inProgress(id: number): Promise<void> {
+    const url = `${this._api_url}/mission/in-progress/${id}`;
+    await firstValueFrom(this._http.patch(url, {}, { responseType: 'text' }));
+  }
+
+  async toCompleted(id: number): Promise<void> {
+    const url = `${this._api_url}/mission/to-completed/${id}`;
+    await firstValueFrom(this._http.patch(url, {}, { responseType: 'text' }));
+  }
+
+  async toFailed(id: number): Promise<void> {
+    const url = `${this._api_url}/mission/to-failed/${id}`;
+    await firstValueFrom(this._http.patch(url, {}, { responseType: 'text' }));
+  }
+
+  async join(id: number): Promise<void> {
+    const url = `${this._api_url}/crew/join/${id}`;
+    await firstValueFrom(this._http.post(url, {}, { responseType: 'text' }));
   }
 
   private toQueryString(filter: MissionFilter): string {
