@@ -5,6 +5,7 @@ import { environment } from '../../environments/environment';
 import { Mission } from '../_models/mission';
 import { MissionFilter } from '../_models/mission-filter';
 import { AddMission } from '../_models/add-mission';
+import { EditMission } from '../_models/edit-mission';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +20,11 @@ export class MissionService {
     const observable = this._http.post<{ mission_id: number }>(url, mission);
     const resp = await firstValueFrom(observable);
     return resp.mission_id;
+  }
+
+  async edit(id: number, mission: EditMission): Promise<void> {
+    const url = `${this._api_url}/missions-management/${id}`;
+    await firstValueFrom(this._http.patch(url, mission));
   }
 
   async getMyMissions(): Promise<Mission[]> {
@@ -61,6 +67,11 @@ export class MissionService {
   async join(id: number): Promise<void> {
     const url = `${this._api_url}/crew/join/${id}`;
     await firstValueFrom(this._http.post(url, {}, { responseType: 'text' }));
+  }
+
+  async leave(id: number): Promise<void> {
+    const url = `${this._api_url}/crew/leave/${id}`;
+    await firstValueFrom(this._http.delete(url, { responseType: 'text' }));
   }
 
   private toQueryString(filter: MissionFilter): string {

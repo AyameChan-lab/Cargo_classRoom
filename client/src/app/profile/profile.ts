@@ -9,6 +9,8 @@ import { MatCardModule } from '@angular/material/card';
 import { AvatarDialog } from './avatar-dialog/avatar-dialog';
 import { MissionService } from '../_services/mission-service';
 import { Mission } from '../_models/mission';
+import { ConfirmDialog } from '../_dialog/confirm-dialog/confirm-dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-profile',
@@ -22,7 +24,7 @@ export class Profile {
   private _dialog = inject(MatDialog);
   private _router = inject(Router);
   private _missionService = inject(MissionService);
-
+  private _snackBar = inject(MatSnackBar);
   private _cdr = inject(ChangeDetectorRef);
 
   joinedMissions: Mission[] = [];
@@ -50,6 +52,37 @@ export class Profile {
       if (result) {
         // Result is the uploaded image object { url, public_id }
         this.passportService.updateAvatar(result.url);
+      }
+    });
+  }
+
+  leaveMission(mission: Mission) {
+    const dialogRef = this._dialog.open(ConfirmDialog, {
+      data: {
+        title: 'Leave Mission',
+        message: `Are you sure you want to leave "${mission.name}"?`,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result) {
+        try {
+          await this._missionService.leave(mission.id);
+          this.joinedMissions = this.joinedMissions.filter((m) => m.id !== mission.id);
+          this._snackBar.open(`Left mission "${mission.name}"`, 'Close', {
+            duration: 3000,
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+          });
+          this._cdr.detectChanges();
+        } catch (error) {
+          console.error(error);
+          this._snackBar.open('Failed to leave mission', 'Close', {
+            duration: 3000,
+            horizontalPosition: 'right',
+            verticalPosition: 'top',
+          });
+        }
       }
     });
   }

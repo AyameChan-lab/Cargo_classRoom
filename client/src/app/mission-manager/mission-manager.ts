@@ -9,6 +9,8 @@ import { Mission } from '../_models/mission';
 import { NewMission } from '../_dialog/new-mission/new-mission';
 import { AddMission } from '../_models/add-mission';
 import { PassportService } from '../_services/passport-service';
+import { EditMissionDialog } from '../_dialog/edit-mission/edit-mission';
+import { EditMission } from '../_models/edit-mission';
 
 @Component({
   selector: 'app-mission-manager',
@@ -54,6 +56,36 @@ export class MissionManager {
 
       const currentMissions = this._missionsSubject.value;
       this._missionsSubject.next([...currentMissions, newMission]);
+    });
+  }
+
+  openEditDialog(mission: Mission) {
+    const ref = this._dialog.open(EditMissionDialog, {
+      data: {
+        name: mission.name,
+        description: mission.description,
+        status: mission.status,
+      } as EditMission,
+    });
+
+    ref.afterClosed().subscribe(async (editedMission: EditMission) => {
+      if (!editedMission) return;
+
+      await this._missionService.edit(mission.id, editedMission);
+
+      // Update local state directly with new data + new timestamp
+      const currentMissions = this._missionsSubject.value;
+      const index = currentMissions.findIndex((m) => m.id === mission.id);
+      if (index !== -1) {
+        const updatedMission = {
+          ...currentMissions[index],
+          ...editedMission,
+          updated_at: new Date(), // User wants immediate update
+        };
+        const updatedList = [...currentMissions];
+        updatedList[index] = updatedMission;
+        this._missionsSubject.next(updatedList);
+      }
     });
   }
 }

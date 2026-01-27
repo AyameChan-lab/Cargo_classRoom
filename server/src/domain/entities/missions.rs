@@ -34,5 +34,6 @@ pub struct EditMissionEntity {
     pub chief_id: i32,
     pub name: Option<String>,
     pub description: Option<String>,
-    pub(crate) status: Option<String>,
+    pub status: Option<String>,
+    pub updated_at: Option<NaiveDateTime>,
 }

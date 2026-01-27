@@ -37,6 +37,7 @@
               <th>Chief</th>
               <th>Status</th>
               <th>Joined At</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -49,6 +50,9 @@
                   <span class="status-badge" [class]="mission.status">{{ mission.status }}</span>
                 </td>
                 <td>{{ mission.created_at | date: 'short' }}</td>
+                <td>
+                  <button mat-button color="warn" (click)="leaveMission(mission)">Leave</button>
+                </td>
               </tr>
             } @empty {
               <tr>

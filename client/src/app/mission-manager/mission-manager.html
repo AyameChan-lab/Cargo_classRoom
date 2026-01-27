@@ -31,7 +31,12 @@
             <td>{{ mission.created_at | date: 'short' }}</td>
             <td>{{ mission.updated_at | date: 'short' }}</td>
             <td class="actions-cell">
-              <button mat-icon-button color="primary" aria-label="Edit">
+              <button
+                mat-icon-button
+                color="primary"
+                aria-label="Edit"
+                (click)="openEditDialog(mission)"
+              >
                 <mat-icon>edit</mat-icon>
               </button>
               <button mat-icon-button color="warn" aria-label="Delete">

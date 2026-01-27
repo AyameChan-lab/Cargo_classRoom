@@ -63,6 +63,7 @@ impl EditMissionModel {
             name: self.name.clone(),
             description: self.description.clone(),
             status: self.status.clone(),
+            updated_at: Some(chrono::Utc::now().naive_utc()),
             chief_id,
         }
     }

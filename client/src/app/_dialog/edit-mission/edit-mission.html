@@ -1,0 +1,36 @@
+<h4 mat-dialog-title>Edit Mission</h4>
+
+<mat-dialog-content>
+  <div
+    style="display: flex; flex-direction: column; gap: 1rem; min-width: 300px; padding-top: 1rem"
+  >
+    <mat-form-field appearance="outline">
+      <mat-label>Mission Name</mat-label>
+      <input matInput type="text" [(ngModel)]="data.name" placeholder="Mission Name" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select [(ngModel)]="data.status">
+        @for (s of statuses; track s) {
+          <mat-option [value]="s">{{ s }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Mission Description</mat-label>
+      <textarea
+        matInput
+        [(ngModel)]="data.description"
+        placeholder="Mission Description"
+        rows="4"
+      ></textarea>
+    </mat-form-field>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button (click)="onSubmit()" mat-stroked-button [disabled]="!data.name">Save</button>
+</mat-dialog-actions>
