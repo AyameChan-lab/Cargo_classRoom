@@ -18,18 +18,48 @@ export class ErrorService {
 
   handleError(error: any): Observable<never> {
     if (error) {
-      if (
-        error.status >= 400 &&
-        error.status < 500 &&
-        error.url &&
-        (error.url.includes('login') || error.url.includes('register'))
-      ) {
-        const msg =
-          error.error && typeof error.error === 'string' ? error.error : 'Authentication failed';
+      // Check if it's an Auth related request (Login/Register)
+      // If so, show snackbar and DO NOT redirect.
+      if (error.url && (error.url.includes('login') || error.url.includes('register'))) {
+        let msg = 'Authentication failed';
+
+        // Try to extraction message string
+        if (error.error && typeof error.error === 'string') {
+          msg = error.error;
+        }
+
+        // Handle specific scenarios
+        if (error.status === 0) {
+          msg = 'Unable to connect to server';
+        } else if (error.status === 400 && (!error.error || typeof error.error !== 'string')) {
+          if (error.url.includes('login')) {
+            msg = 'Invalid username or password';
+          } else {
+            msg = 'Registration failed';
+          }
+        } else if (error.status === 500) {
+          const errStr =
+            error.error && typeof error.error === 'string' ? error.error : 'Internal Server Error';
+
+          if (
+            errStr.includes('duplicate key value violates unique constraint') ||
+            errStr.includes('unique_username')
+          ) {
+            if (errStr.includes('duplicate key value violates unique constraint')) {
+              msg = 'Username unavailable. Please choose another username.';
+            } else if (errStr.includes('unique_username')) {
+              msg = 'Username is already taken.';
+            }
+          } else {
+            msg = errStr;
+          }
+        }
+
         this._snackbar.open(msg, 'ok', this.snackBarConfig);
         return throwError(() => error);
       }
 
+      // Existing logic for non-Auth requests
       switch (error.status) {
         case 400:
           const msg =
@@ -48,7 +78,7 @@ export class ErrorService {
           let msg500 =
             error.error && typeof error.error === 'string' ? error.error : 'Internal Server Error';
 
-          // Handle specific business logic errors with snackbar
+          // Handle specific business logic errors with snackbar (redundant for auth but kept for others)
           if (
             msg500.includes('duplicate key value violates unique constraint') ||
             msg500.includes('unique_username')
