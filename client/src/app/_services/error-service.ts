@@ -74,6 +74,9 @@ export class ErrorService {
         case 401:
           this._snackbar.open('Authorization Required', 'ok', this.snackBarConfig);
           break;
+        case 409:
+          this._snackbar.open('You have already joined this mission.', 'ok', this.snackBarConfig);
+          break;
         case 500:
           let msg500 =
             error.error && typeof error.error === 'string' ? error.error : 'Internal Server Error';
@@ -81,8 +84,19 @@ export class ErrorService {
           // Handle specific business logic errors with snackbar (redundant for auth but kept for others)
           if (
             msg500.includes('duplicate key value violates unique constraint') ||
-            msg500.includes('unique_username')
+            msg500.includes('unique_username') ||
+            msg500.includes('Mission has been taken by brawler for now!')
           ) {
+            // Check for mission join duplicate
+            if (error.url && error.url.includes('crew/join')) {
+              this._snackbar.open(
+                'You have already joined this mission.',
+                'ok',
+                this.snackBarConfig,
+              );
+              break;
+            }
+
             if (msg500.includes('duplicate key value violates unique constraint')) {
               msg500 = 'Username unavailable. Please choose another username.';
             } else if (msg500.includes('unique_username')) {

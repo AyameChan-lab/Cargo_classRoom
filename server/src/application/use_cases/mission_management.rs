@@ -73,10 +73,72 @@ where
             .mission_viewing_repository
             .crew_counting(mission_id)
             .await?;
+
         if crew_count > 0 {
-            return Err(anyhow::anyhow!(
-                "Mission has been taken by brawler for now!"
-            ));
+            // Fetch current mission to compare fields
+            let current_mission = self
+                .mission_viewing_repository
+                .view_detail(mission_id)
+                .await?;
+
+            // Check name change
+            if let Some(ref new_name) = edit_mission_model.name {
+                if new_name != &current_mission.name {
+                    return Err(anyhow::anyhow!(
+                        "Mission has been taken by brawler for now! Cannot change name."
+                    ));
+                }
+            }
+
+            // Check description change
+            if let Some(ref new_desc) = edit_mission_model.description {
+                if let Some(ref curr_desc) = current_mission.description {
+                    if new_desc != curr_desc {
+                        return Err(anyhow::anyhow!(
+                            "Mission has been taken by brawler for now! Cannot change description."
+                        ));
+                    }
+                } else {
+                    // Current has no desc, new has desc -> Change
+                    return Err(anyhow::anyhow!(
+                        "Mission has been taken by brawler for now! Cannot change description."
+                    ));
+                }
+            } else {
+                // New is None (or not provided?), checks if User meant to clear it?
+                // EditMissionModel description is Option<String>.
+                // If frontend sends undefined/null, it might be None.
+                // If the logic relies on "if provided, update", then None means "don't update" or "set to null"?
+                // Looking at `clean` in frontend: `description: mission.description?.trim() || undefined`.
+                // If it is undefined, JSON might skip it or send null.
+                // In `EditMissionModel`, it is `Option<String>`.
+
+                // If the user wants to clear the description, they send empty string or null?
+                // Let's assume strict equality check for safety.
+                // If current has desc, and request uses None (meaning no change requested OR clear?), we need to be careful.
+                // Usually PATCH means "update if present".
+                // If frontend always sends the field, we compare.
+
+                // However, let's look at `EditMission` struct in Rust
+                // pub struct EditMissionModel { pub name: Option<String>, ... }
+                // If it is None, it usually means "do not change" in many implementations,
+                // OR it could be "set to null".
+                // But in `to_entity`, it clones the Option.
+                // `EditMissionEntity` has `Option<String>`.
+                // Diesel `AsChangeset` with `Option` fields: None = invalid (skip), Some = update.
+                // So if `edit_mission_model.description` is None, it means "don't update".
+                // So we only care if it IS Some.
+            }
+
+            // Re-check description logic with "update only if Some" assumption (standard PATCH)
+            if let Some(ref new_desc) = edit_mission_model.description {
+                // If we are "updating" description
+                if current_mission.description.as_ref() != Some(new_desc) {
+                    return Err(anyhow::anyhow!(
+                        "Mission has been taken by brawler for now! Cannot change description."
+                    ));
+                }
+            }
         }
 
         let edit_mission_entity = edit_mission_model.to_entity(chief_id);

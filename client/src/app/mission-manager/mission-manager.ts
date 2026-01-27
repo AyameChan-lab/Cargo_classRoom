@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MissionService } from '../_services/mission-service';
 import { Mission } from '../_models/mission';
 import { NewMission } from '../_dialog/new-mission/new-mission';
@@ -22,6 +23,7 @@ import { EditMission } from '../_models/edit-mission';
 export class MissionManager {
   private _missionService = inject(MissionService);
   private _dialog = inject(MatDialog);
+  private _snackBar = inject(MatSnackBar);
   private _passportService = inject(PassportService);
   private _missionsSubject = new BehaviorSubject<Mission[]>([]);
   readonly myMissions$ = this._missionsSubject.asObservable();
@@ -71,20 +73,31 @@ export class MissionManager {
     ref.afterClosed().subscribe(async (editedMission: EditMission) => {
       if (!editedMission) return;
 
-      await this._missionService.edit(mission.id, editedMission);
+      try {
+        await this._missionService.edit(mission.id, editedMission);
 
-      // Update local state directly with new data + new timestamp
-      const currentMissions = this._missionsSubject.value;
-      const index = currentMissions.findIndex((m) => m.id === mission.id);
-      if (index !== -1) {
-        const updatedMission = {
-          ...currentMissions[index],
-          ...editedMission,
-          updated_at: new Date(), // User wants immediate update
-        };
-        const updatedList = [...currentMissions];
-        updatedList[index] = updatedMission;
-        this._missionsSubject.next(updatedList);
+        // Update local state directly with new data + new timestamp
+        const currentMissions = this._missionsSubject.value;
+        const index = currentMissions.findIndex((m) => m.id === mission.id);
+        if (index !== -1) {
+          const updatedMission = {
+            ...currentMissions[index],
+            ...editedMission,
+            updated_at: new Date(),
+          };
+          const updatedList = [...currentMissions];
+          updatedList[index] = updatedMission;
+          this._missionsSubject.next(updatedList);
+        }
+
+        this._snackBar.open('Mission updated successfully', 'Close', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+        });
+      } catch (error) {
+        console.error(error);
+        // Error handling is managed by ErrorInterceptor/ErrorService
       }
     });
   }
