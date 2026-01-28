@@ -50,6 +50,7 @@ where
                 (StatusCode::CONFLICT, "Already joined this mission").into_response()
             } else if error_message.contains("Mission is full")
                 || error_message.contains("Mission is not joinable")
+                || error_message.contains("The Chief can't join the mission")
             {
                 (StatusCode::BAD_REQUEST, error_message).into_response()
             } else {

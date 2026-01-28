@@ -68,8 +68,12 @@ export class ErrorService {
               : 'invalid username or password';
           this._snackbar.open(msg, 'ok', this.snackBarConfig);
           break;
-        case 404:
           this._router.navigate(['/not-found']);
+          break;
+        case 403:
+          const msg403 =
+            error.error && typeof error.error === 'string' ? error.error : 'Permission Denied';
+          this._snackbar.open(msg403, 'ok', this.snackBarConfig);
           break;
         case 401:
           this._snackbar.open('Authorization Required', 'ok', this.snackBarConfig);

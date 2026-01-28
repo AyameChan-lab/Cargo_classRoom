@@ -58,15 +58,18 @@ impl MissionManagementRepository for MisssionManagementPostgres {
             .get()
             .map_err(|e| anyhow::Error::msg(e.to_string()))?;
 
-        diesel::update(missions::table)
+        let count = diesel::update(missions::table)
             .filter(missions::id.eq(mission_id))
+            .filter(missions::chief_id.eq(chief_id))
             .filter(missions::deleted_at.is_null())
-            .filter(missions::status.eq(MissionStatuses::Open.to_string()))
-            .set((
-                missions::deleted_at.eq(diesel::dsl::now),
-                missions::chief_id.eq(chief_id),
-            ))
+            .set(missions::deleted_at.eq(diesel::dsl::now))
             .execute(&mut connection)?;
+
+        if count == 0 {
+            return Err(anyhow::anyhow!(
+                "Mission not found or you are not the owner"
+            ));
+        }
 
         Ok(())
     }

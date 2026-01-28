@@ -101,4 +101,32 @@ export class MissionManager {
       }
     });
   }
+
+  async deleteMission(mission: Mission) {
+    if (!confirm(`Are you sure you want to delete "${mission.name}"?`)) {
+      return;
+    }
+
+    try {
+      await this._missionService.delete(mission.id);
+
+      const currentMissions = this._missionsSubject.value;
+      const updatedList = currentMissions.filter((m) => m.id !== mission.id);
+      this._missionsSubject.next(updatedList);
+
+      this._snackBar.open('Mission deleted successfully', 'Close', {
+        duration: 3000,
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+      });
+    } catch (error) {
+      console.error('Delete failed', error);
+      this._snackBar.open('Failed to delete mission', 'Close', {
+        duration: 3000,
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar'],
+      });
+    }
+  }
 }

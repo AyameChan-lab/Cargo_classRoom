@@ -27,6 +27,11 @@ export class MissionService {
     await firstValueFrom(this._http.patch(url, mission));
   }
 
+  async delete(id: number): Promise<void> {
+    const url = `${this._api_url}/missions-management/${id}`;
+    await firstValueFrom(this._http.delete(url));
+  }
+
   async getMyMissions(): Promise<Mission[]> {
     const url = this._api_url + '/brawlers/missions';
     const observable = this._http.get<Mission[]>(url);

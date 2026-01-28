@@ -72,7 +72,15 @@ where
 {
     match user_case.remove(mission_id, user_id).await {
         Ok(passport) => (StatusCode::OK, Json(passport)).into_response(),
-        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+        Err(e) => {
+            let error_msg = e.to_string();
+            if error_msg.contains("Mission not found or you are not the owner") {
+                return (StatusCode::FORBIDDEN, error_msg).into_response();
+            } else if error_msg.contains("Mission has been taken by brawler for now!") {
+                return (StatusCode::BAD_REQUEST, error_msg).into_response();
+            }
+            (StatusCode::INTERNAL_SERVER_ERROR, error_msg).into_response()
+        }
     }
 }
 
