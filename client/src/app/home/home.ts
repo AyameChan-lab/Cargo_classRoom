@@ -21,9 +21,9 @@ export class Home {
     }
   }
 
-  onError(code: number) {
-    this._http.get(environment.baseUrl + '/api/error/' + code).subscribe({
-      error: (e) => console.error(e),
-    });
-  }
+  // onError(code: number) {
+  //   this._http.get(environment.baseUrl + '/api/error/' + code).subscribe({
+  //     error: (e) => console.error(e),
+  //   });
+  // }
 }
